@@ -6,6 +6,8 @@ import service.XeService;
 import util.MoneyUtil;
 import util.MessageUtil;
 import util.StatusUtil;
+import util.PermissionUtil;
+import util.UITheme;
 import view.dialog.XeDialog;
 
 import javax.swing.*;
@@ -20,8 +22,7 @@ public class XePanel extends JPanel {
 
     public XePanel() {
         setLayout(new BorderLayout());
-        JLabel title = new JLabel("CRUD XE VÀ CẬP NHẬT TRẠNG THÁI", SwingConstants.CENTER);
-        title.setFont(new Font("Segoe UI", Font.BOLD, 20));
+        JLabel title = UITheme.sectionTitle("Danh mục và trạng thái xe");
         lblStats = new JLabel("", SwingConstants.CENTER);
 
         JPanel top = new JPanel(new GridLayout(2, 1));
@@ -31,15 +32,15 @@ public class XePanel extends JPanel {
             @Override public boolean isCellEditable(int row, int column) { return false; }
         };
         table = new JTable(model);
-        table.setRowHeight(26);
+        UITheme.styleTable(table);
 
-        JButton btnThem = new JButton("Thêm xe");
-        JButton btnSua = new JButton("Sửa xe");
-        JButton btnXoa = new JButton("Thanh lý/xóa mềm");
-        JButton btnSanSang = new JButton("Sẵn sàng");
-        JButton btnBaoTri = new JButton("Bảo trì");
-        JButton btnBaoDuong = new JButton("Bảo dưỡng");
-        JButton btnRefresh = new JButton("Làm mới");
+        JButton btnThem = UITheme.primaryButton("Thêm xe");
+        JButton btnSua = UITheme.normalButton("Sửa xe");
+        JButton btnXoa = UITheme.dangerButton("Thanh lý/xóa mềm");
+        JButton btnSanSang = UITheme.successButton("Sẵn sàng");
+        JButton btnBaoTri = UITheme.normalButton("Bảo trì");
+        JButton btnBaoDuong = UITheme.normalButton("Bảo dưỡng");
+        JButton btnRefresh = UITheme.normalButton("Làm mới");
 
         btnThem.addActionListener(e -> { new XeDialog(null, true).setVisible(true); loadData(); });
         btnSua.addActionListener(e -> sua());
@@ -52,14 +53,17 @@ public class XePanel extends JPanel {
         JPanel buttons = new JPanel();
         buttons.add(btnThem); buttons.add(btnSua); buttons.add(btnXoa); buttons.add(btnSanSang); buttons.add(btnBaoTri); buttons.add(btnBaoDuong); buttons.add(btnRefresh);
 
-        if (!"ChuCuaHang".equals(Session.getVaiTro())) {
-            btnThem.setVisible(false);
-            btnSua.setVisible(false);
-            btnXoa.setVisible(false);
-        }
+        btnThem.setVisible(PermissionUtil.canManageVehicleCatalog());
+        btnSua.setVisible(PermissionUtil.canManageVehicleCatalog());
+        btnXoa.setVisible(PermissionUtil.canManageVehicleCatalog());
+        btnSanSang.setVisible(PermissionUtil.canUpdateTechnicalStatus());
+        btnBaoTri.setVisible(PermissionUtil.canUpdateTechnicalStatus());
+        btnBaoDuong.setVisible(PermissionUtil.canUpdateTechnicalStatus());
 
         add(top, BorderLayout.NORTH);
-        add(new JScrollPane(table), BorderLayout.CENTER);
+        JScrollPane scroll = new JScrollPane(table);
+        scroll.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
+        add(scroll, BorderLayout.CENTER);
         add(buttons, BorderLayout.SOUTH);
         loadData();
     }

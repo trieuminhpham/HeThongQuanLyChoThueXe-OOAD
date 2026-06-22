@@ -8,6 +8,22 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ThanhToanDAO {
+    private ThanhToan map(ResultSet rs) throws SQLException {
+        ThanhToan tt = new ThanhToan();
+        tt.setMaGiaoDich(rs.getInt("maGiaoDich"));
+        tt.setHinhThucThanhToan(rs.getString("hinhThucThanhToan"));
+        tt.setSoTien(rs.getDouble("soTien"));
+        Timestamp ts = rs.getTimestamp("ngayGio");
+        tt.setNgayGio(ts == null ? null : ts.toLocalDateTime());
+        tt.setTrangThaiGiaoDich(rs.getString("trangThaiGiaoDich"));
+        tt.setLoaiThanhToan(rs.getString("loaiThanhToan"));
+        tt.setLoaiGiaoDich(rs.getString("loaiGiaoDich"));
+        tt.setNoiDung(rs.getString("noiDung"));
+        int maHD = rs.getInt("maHopDong");
+        tt.setMaHopDong(rs.wasNull() ? null : maHD);
+        return tt;
+    }
+
     public boolean insert(ThanhToan tt) {
         String sql = "INSERT INTO ThanhToan "
                 + "(hinhThucThanhToan, soTien, trangThaiGiaoDich, "
@@ -59,29 +75,32 @@ public class ThanhToanDAO {
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
+            ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
-                ThanhToan tt = new ThanhToan();
-                tt.setMaGiaoDich(rs.getInt("maGiaoDich"));
-                tt.setHinhThucThanhToan(rs.getString("hinhThucThanhToan"));
-                tt.setSoTien(rs.getDouble("soTien"));
-                Timestamp ts = rs.getTimestamp("ngayGio");
-                tt.setNgayGio(ts == null ? null : ts.toLocalDateTime());
-                tt.setTrangThaiGiaoDich(rs.getString("trangThaiGiaoDich"));
-                tt.setLoaiThanhToan(rs.getString("loaiThanhToan"));
-                tt.setLoaiGiaoDich(rs.getString("loaiGiaoDich"));
-                tt.setNoiDung(rs.getString("noiDung"));
-
-                int maHD = rs.getInt("maHopDong");
-                tt.setMaHopDong(rs.wasNull() ? null : maHD);
-
-                list.add(tt);
+                list.add(map(rs));
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
 
+        return list;
+    }
+
+    public List<ThanhToan> findByHopDong(int maHopDong) {
+        List<ThanhToan> list = new ArrayList<>();
+        String sql = "SELECT * FROM ThanhToan WHERE maHopDong = ? "
+                + "AND trangThaiGiaoDich = N'ThanhCong' ORDER BY maGiaoDich";
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, maHopDong);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) list.add(map(rs));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
         return list;
     }
 }

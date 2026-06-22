@@ -6,6 +6,7 @@ import model.Xe;
 import service.XeService;
 import util.MessageUtil;
 import util.StatusUtil;
+import util.UITheme;
 
 import javax.swing.*;
 import java.awt.*;
@@ -49,8 +50,8 @@ public class XeDialog extends JDialog {
 
         if (maXeEdit != null) loadXe();
 
-        JButton btnSave = new JButton("Lưu");
-        JButton btnClose = new JButton("Đóng");
+        JButton btnSave = UITheme.primaryButton("Lưu");
+        JButton btnClose = UITheme.normalButton("Đóng");
         btnSave.addActionListener(e -> save());
         btnClose.addActionListener(e -> dispose());
         JPanel buttons = new JPanel();
@@ -74,7 +75,16 @@ public class XeDialog extends JDialog {
         txtNam.setText(String.valueOf(x.getNamSanXuat()));
         txtKm.setText(String.valueOf(x.getSoKmHienTai()));
         txtGia.setText(String.valueOf(x.getDonGiaThueNgay()));
+        boolean hasStatus = false;
+        for (int i = 0; i < cboTrangThai.getItemCount(); i++) {
+            if (cboTrangThai.getItemAt(i).equals(x.getTrangThaiXe())) hasStatus = true;
+        }
+        if (!hasStatus) cboTrangThai.addItem(x.getTrangThaiXe());
         cboTrangThai.setSelectedItem(x.getTrangThaiXe());
+        if (StatusUtil.isXeBookedOrRented(x.getTrangThaiXe())) {
+            cboTrangThai.setEnabled(false);
+            cboTrangThai.setToolTipText("Trạng thái xe đang trong hợp đồng chỉ thay đổi theo quy trình thuê xe.");
+        }
         for (int i = 0; i < cboLoai.getItemCount(); i++) {
             if (cboLoai.getItemAt(i).getMaLoaiXe() == x.getMaLoaiXe()) {
                 cboLoai.setSelectedIndex(i);

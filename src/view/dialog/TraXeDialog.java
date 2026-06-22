@@ -4,6 +4,7 @@ import model.HopDong;
 import service.HopDongService;
 import util.MessageUtil;
 import util.StatusUtil;
+import util.UITheme;
 
 import javax.swing.*;
 import java.awt.*;
@@ -37,8 +38,8 @@ public class TraXeDialog extends JDialog {
         form.add(new JLabel("Số km khi trả:")); form.add(txtSoKmTra);
         form.add(new JLabel("Phí phát sinh:")); form.add(txtPhiPhatSinh);
 
-        JButton btnOk = new JButton("Xác nhận nhận xe");
-        JButton btnClose = new JButton("Đóng");
+        JButton btnOk = UITheme.primaryButton("Xác nhận nhận xe");
+        JButton btnClose = UITheme.normalButton("Đóng");
         btnOk.addActionListener(e -> save());
         btnClose.addActionListener(e -> dispose());
 

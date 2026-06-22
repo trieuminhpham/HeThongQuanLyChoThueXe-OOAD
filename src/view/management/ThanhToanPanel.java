@@ -2,10 +2,13 @@ package view.management;
 
 import model.ThanhToan;
 import service.ThanhToanService;
+import service.HopDongService;
+import model.HopDong;
 import util.DateUtil;
 import util.MoneyUtil;
 import util.MessageUtil;
 import view.dialog.BienLaiDialog;
+import util.UITheme;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -21,30 +24,30 @@ public class ThanhToanPanel extends JPanel {
     private JLabel lblTong;
     private List<ThanhToan> currentList = new ArrayList<>();
     private final ThanhToanService service = new ThanhToanService();
+    private final HopDongService hopDongService = new HopDongService();
 
     public ThanhToanPanel() {
         setLayout(new BorderLayout());
-        JLabel title = new JLabel("MÀN HÌNH THANH TOÁN - GIAO DỊCH", SwingConstants.CENTER);
-        title.setFont(new Font("Segoe UI", Font.BOLD, 20));
+        JLabel title = UITheme.sectionTitle("Thanh toán và lịch sử giao dịch");
 
         model = new DefaultTableModel(new Object[]{"Mã GD", "Mã HĐ", "Loại thanh toán", "Loại GD", "Hình thức", "Số tiền", "Ngày giờ", "Trạng thái", "Nội dung"}, 0) {
             @Override public boolean isCellEditable(int row, int column) { return false; }
         };
         table = new JTable(model);
-        table.setRowHeight(26);
+        UITheme.styleTable(table);
 
         cboLoai = new JComboBox<>(new String[]{"TatCa", "TienCoc", "ThuThem", "HoanCoc"});
         txtMaHopDong = new JTextField(8);
         lblTong = new JLabel("Tổng tiền đang hiển thị: 0 VNĐ");
 
-        JButton btnSearch = new JButton("Tra cứu");
-        JButton btnReceipt = new JButton("In biên lai giao dịch chọn");
-        JButton btnRefresh = new JButton("Làm mới");
+        JButton btnSearch = UITheme.primaryButton("Tra cứu");
+        JButton btnReceipt = UITheme.normalButton("In biên lai");
+        JButton btnRefresh = UITheme.normalButton("Làm mới");
         btnSearch.addActionListener(e -> loadData());
         btnRefresh.addActionListener(e -> { txtMaHopDong.setText(""); cboLoai.setSelectedIndex(0); loadData(); });
         btnReceipt.addActionListener(e -> printReceipt());
 
-        JPanel filter = new JPanel();
+        JPanel filter = UITheme.cardPanel(new FlowLayout(FlowLayout.CENTER, 10, 5));
         filter.add(new JLabel("Loại:")); filter.add(cboLoai);
         filter.add(new JLabel("Mã HĐ:")); filter.add(txtMaHopDong);
         filter.add(btnSearch); filter.add(btnReceipt); filter.add(btnRefresh);
@@ -87,12 +90,17 @@ public class ThanhToanPanel extends JPanel {
             MessageUtil.error(this, "Vui lòng chọn một giao dịch");
             return;
         }
-        int maGD = Integer.parseInt(table.getValueAt(row, 0).toString());
-        for (ThanhToan t : currentList) {
-            if (t.getMaGiaoDich() == maGD) {
-                new BienLaiDialog(null, true, t).setVisible(true);
-                return;
-            }
+        Object maHDValue = table.getValueAt(row, 1);
+        if (maHDValue == null) {
+            MessageUtil.error(this, "Giao dịch không gắn với hợp đồng nên không thể in.");
+            return;
         }
+        int maHopDong = Integer.parseInt(maHDValue.toString());
+        HopDong hd = hopDongService.findById(maHopDong);
+        if (hd == null) {
+            MessageUtil.error(this, "Không tìm thấy hợp đồng của giao dịch.");
+            return;
+        }
+        new BienLaiDialog(null, true, hd, service.findByHopDong(maHopDong)).setVisible(true);
     }
 }

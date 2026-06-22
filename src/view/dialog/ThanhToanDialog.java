@@ -5,6 +5,7 @@ import service.HopDongService;
 import util.MessageUtil;
 import util.MoneyUtil;
 import util.StatusUtil;
+import util.UITheme;
 
 import javax.swing.*;
 import java.awt.*;
@@ -45,8 +46,8 @@ public class ThanhToanDialog extends JDialog {
         form.add(new JLabel("Kết quả quyết toán:")); form.add(new JLabel(ketQua));
         form.add(new JLabel("Hình thức:")); form.add(cboHinhThuc);
 
-        JButton btnOk = new JButton("Xác nhận quyết toán");
-        JButton btnClose = new JButton("Đóng");
+        JButton btnOk = UITheme.successButton("Xác nhận quyết toán");
+        JButton btnClose = UITheme.normalButton("Đóng");
         btnOk.addActionListener(e -> save());
         btnClose.addActionListener(e -> dispose());
 
