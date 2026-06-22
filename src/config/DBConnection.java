@@ -15,8 +15,8 @@ public class DBConnection {
             + "encrypt=true;"
             + "trustServerCertificate=true;";
 
-    private static final String USER = "sa";
-    private static final String PASSWORD = "your_password";
+    private static final String USER = "Nhom1_OOAD";
+    private static final String PASSWORD = "1";
 
     public static Connection getConnection() throws SQLException {
         return DriverManager.getConnection(URL, USER, PASSWORD);

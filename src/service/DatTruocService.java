@@ -18,6 +18,7 @@ public class DatTruocService {
     public boolean datTruocXe(KhachHang khachHang, HopDong hopDong) {
         if (ValidationUtil.isEmpty(khachHang.getTenKhachHang())) return false;
         if (!ValidationUtil.isValidPhone(khachHang.getSoDienThoai())) return false;
+        if (!ValidationUtil.isValidEmail(khachHang.getEmail())) return false;
         if (!ValidationUtil.isValidBookingTime(hopDong.getNgayNhanXe(), hopDong.getNgayTraDuKien())) return false;
 
         // Chặn lỗi logic: khách không được gửi yêu cầu nếu xe đã giữ chỗ, đặt cọc, đang thuê hoặc đang xử lý.

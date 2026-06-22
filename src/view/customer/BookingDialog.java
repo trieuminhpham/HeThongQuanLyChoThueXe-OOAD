@@ -5,9 +5,11 @@ import model.KhachHang;
 import service.DatTruocService;
 import util.DateUtil;
 import util.MessageUtil;
+import util.UITheme;
 
 import javax.swing.*;
 import java.awt.*;
+import java.time.LocalDateTime;
 
 public class BookingDialog extends JDialog {
     private final int maXe;
@@ -30,8 +32,10 @@ public class BookingDialog extends JDialog {
         txtSdt = new JTextField();
         txtEmail = new JTextField();
         txtDiaChi = new JTextField();
-        txtNgayNhan = new JTextField("2026-06-20 08:00");
-        txtNgayTra = new JTextField("2026-06-23 08:00");
+        LocalDateTime ngayNhan = LocalDateTime.now().plusDays(1).withHour(8).withMinute(0).withSecond(0).withNano(0);
+        LocalDateTime ngayTra = ngayNhan.plusDays(3);
+        txtNgayNhan = new JTextField(DateUtil.formatDateTime(ngayNhan));
+        txtNgayTra = new JTextField(DateUtil.formatDateTime(ngayTra));
 
         JPanel form = new JPanel(new GridLayout(6, 2, 8, 8));
         form.setBorder(BorderFactory.createEmptyBorder(20, 30, 10, 30));
@@ -48,8 +52,8 @@ public class BookingDialog extends JDialog {
         form.add(new JLabel("Ngày trả yyyy-MM-dd HH:mm:"));
         form.add(txtNgayTra);
 
-        JButton btnGui = new JButton("Gửi yêu cầu đặt trước");
-        JButton btnHuy = new JButton("Hủy");
+        JButton btnGui = UITheme.primaryButton("Gửi yêu cầu đặt trước");
+        JButton btnHuy = UITheme.normalButton("Hủy");
 
         btnGui.addActionListener(e -> guiYeuCau());
         btnHuy.addActionListener(e -> dispose());

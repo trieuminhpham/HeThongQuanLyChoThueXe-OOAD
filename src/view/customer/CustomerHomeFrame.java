@@ -17,6 +17,8 @@ public class CustomerHomeFrame extends JFrame {
     private JTable tblXe;
     private DefaultTableModel tableModel;
     private JLabel lblTotal, lblBusy, lblAvailable;
+    private JComboBox<String> cboHangXe;
+    private JComboBox<Object> cboSoCho;
     private final XeService xeService = new XeService();
 
     public CustomerHomeFrame() {
@@ -26,7 +28,7 @@ public class CustomerHomeFrame extends JFrame {
         setSize(1050, 620);
         setLocationRelativeTo(null);
 
-        JLabel title = UITheme.title("DANH SÁCH XE CHO THUÊ");
+        JLabel title = UITheme.title("TÌM XE PHÙ HỢP VỚI BẠN");
 
         lblTotal = statLabel("Tổng số xe: 0");
         lblBusy = statLabel("Đã thuê/đặt chỗ: 0");
@@ -38,10 +40,34 @@ public class CustomerHomeFrame extends JFrame {
         statPanel.add(lblBusy);
         statPanel.add(lblAvailable);
 
-        JPanel top = new JPanel(new BorderLayout());
+        cboHangXe = new JComboBox<>();
+        cboSoCho = new JComboBox<>();
+        loadFilterOptions();
+
+        JButton btnTimKiem = UITheme.primaryButton("Tìm kiếm");
+        JButton btnXoaLoc = UITheme.normalButton("Xóa bộ lọc");
+        btnTimKiem.addActionListener(e -> loadData());
+        btnXoaLoc.addActionListener(e -> {
+            cboHangXe.setSelectedIndex(0);
+            cboSoCho.setSelectedIndex(0);
+            loadData();
+        });
+        cboHangXe.addActionListener(e -> loadData());
+        cboSoCho.addActionListener(e -> loadData());
+
+        JPanel filterPanel = UITheme.cardPanel(new FlowLayout(FlowLayout.CENTER, 12, 6));
+        filterPanel.add(new JLabel("Hãng / dòng xe:"));
+        filterPanel.add(cboHangXe);
+        filterPanel.add(new JLabel("Số chỗ ngồi:"));
+        filterPanel.add(cboSoCho);
+        filterPanel.add(btnTimKiem);
+        filterPanel.add(btnXoaLoc);
+
+        JPanel top = new JPanel(new BorderLayout(0, 8));
         top.setOpaque(false);
         top.add(title, BorderLayout.NORTH);
-        top.add(statPanel, BorderLayout.SOUTH);
+        top.add(statPanel, BorderLayout.CENTER);
+        top.add(filterPanel, BorderLayout.SOUTH);
 
         tableModel = new DefaultTableModel(
                 new Object[]{"Mã xe", "Biển số", "Loại xe", "Số chỗ", "Nhiên liệu", "Phân khúc", "Giá/ngày", "Trạng thái"}, 0
@@ -49,9 +75,7 @@ public class CustomerHomeFrame extends JFrame {
             @Override public boolean isCellEditable(int row, int column) { return false; }
         };
         tblXe = new JTable(tableModel);
-        tblXe.setRowHeight(26);
-        tblXe.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-        tblXe.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 13));
+        UITheme.styleTable(tblXe);
 
         JButton btnDatTruoc = UITheme.primaryButton("Đặt trước xe đã chọn");
         JButton btnLamMoi = UITheme.normalButton("Làm mới");
@@ -71,9 +95,18 @@ public class CustomerHomeFrame extends JFrame {
         buttons.add(btnQuayLai);
 
         add(top, BorderLayout.NORTH);
-        add(new JScrollPane(tblXe), BorderLayout.CENTER);
+        JScrollPane scroll = new JScrollPane(tblXe);
+        scroll.setBorder(BorderFactory.createEmptyBorder(12, 20, 8, 20));
+        add(scroll, BorderLayout.CENTER);
         add(buttons, BorderLayout.SOUTH);
         loadData();
+    }
+
+    private void loadFilterOptions() {
+        cboHangXe.addItem("Tất cả hãng xe");
+        for (String value : xeService.getHangXeOptions()) cboHangXe.addItem(value);
+        cboSoCho.addItem("Tất cả số chỗ");
+        for (Integer value : xeService.getSoChoOptions()) cboSoCho.addItem(value);
     }
 
     private JLabel statLabel(String text) {
@@ -90,7 +123,9 @@ public class CustomerHomeFrame extends JFrame {
 
     private void loadData() {
         tableModel.setRowCount(0);
-        List<Xe> list = xeService.getAllXe();
+        String hangXe = cboHangXe.getSelectedIndex() <= 0 ? null : cboHangXe.getSelectedItem().toString();
+        Integer soCho = cboSoCho.getSelectedIndex() <= 0 ? null : (Integer) cboSoCho.getSelectedItem();
+        List<Xe> list = xeService.searchForCustomer(hangXe, soCho);
         int total = list.size();
         int available = 0;
         int busy = 0;
@@ -111,7 +146,7 @@ public class CustomerHomeFrame extends JFrame {
             });
         }
 
-        lblTotal.setText("Tổng số xe: " + total);
+        lblTotal.setText("Kết quả tìm thấy: " + total + " xe");
         lblBusy.setText("Đã thuê/đặt chỗ: " + busy);
         lblAvailable.setText("Còn sẵn sàng: " + available);
     }

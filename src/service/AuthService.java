@@ -22,7 +22,8 @@ public class AuthService {
         }
 
         if ("NhanVien".equals(selectedRoleGroup)) {
-            return !"ChuCuaHang".equals(nv.getVaiTro()) ? nv : null;
+            return ("NhanVienKinhDoanh".equals(nv.getVaiTro())
+                    || "NhanVienKyThuat".equals(nv.getVaiTro())) ? nv : null;
         }
 
         return null;

@@ -16,6 +16,12 @@ public class ValidationUtil {
     }
 
     public static boolean isValidBookingTime(LocalDateTime from, LocalDateTime to) {
-        return from != null && to != null && to.isAfter(from);
+        return from != null && to != null
+                && !from.isBefore(LocalDateTime.now().minusMinutes(1))
+                && to.isAfter(from);
+    }
+
+    public static boolean isValidEmail(String email) {
+        return isEmpty(email) || email.trim().matches("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$");
     }
 }

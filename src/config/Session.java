@@ -14,11 +14,29 @@ public class Session {
     }
 
     public static String getTenNhanVien() {
-        return currentUser == null ? "" : currentUser.getTenNhanVien();
+        if (currentUser == null || currentUser.getTenNhanVien() == null) {
+            return "";
+        }
+        return currentUser.getTenNhanVien();
     }
 
     public static String getVaiTro() {
-        return currentUser == null ? "" : currentUser.getVaiTro();
+        if (currentUser == null || currentUser.getVaiTro() == null) {
+            return "";
+        }
+        return currentUser.getVaiTro().trim();
+    }
+
+    public static boolean isChuCuaHang() {
+        return "ChuCuaHang".equalsIgnoreCase(getVaiTro());
+    }
+
+    public static boolean isNhanVienKinhDoanh() {
+        return "NhanVienKinhDoanh".equalsIgnoreCase(getVaiTro());
+    }
+
+    public static boolean isNhanVienKyThuat() {
+        return "NhanVienKyThuat".equalsIgnoreCase(getVaiTro());
     }
 
     public static void logout() {
